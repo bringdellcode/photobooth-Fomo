@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobooth</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h1>Photobooth fomo</h1>
+
+    <div class="container">
+        <!-- Bagian Kiri: Video Kamera -->
+        <div class="left-panel">
+            <div class="camera-window">
+                <video id="video" autoplay></video>
+            </div>
+        </div>
+
+        <!-- Bagian Kanan: Hasil Foto -->
+        <div class="right-panel">
+            <canvas id="photo1" class="photo"></canvas>
+            <canvas id="photo2" class="photo"></canvas>
+            <canvas id="photo3" class="photo"></canvas>
+            <div class="button-container">
+                <button id="capture">Ambil Foto</button>
+                <!-- Tombol Reset akan ditambahkan di sini oleh JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture');
+    const photoCanvases = [
+    document.getElementById('photo1'),
+    document.getElementById('photo2'),
+    document.getElementById('photo3')
+];
+let photoIndex = 0; // Indeks untuk menentukan canvas mana yang akan diisi
+
+// Set ukuran canvas sesuai dengan video
+video.addEventListener('play', () => {
+    photoCanvases.forEach(canvas => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+    });
+});
+
+// Akses kamera
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then((stream) => {
+        video.srcObject = stream;
+    })
+    .catch((err) => {
+        console.error("Error accessing the camera: ", err);
+        alert("Tidak dapat mengakses kamera. Pastikan Anda mengizinkan akses kamera.");
+    });
+
+// Ambil foto
+captureButton.addEventListener('click', () => {
+    if (photoIndex >= photoCanvases.length) {
+        alert("Anda sudah mengambil 3 foto. Reset untuk mengambil foto lagi.");
+        return;
+    }
+
+    const canvas = photoCanvases[photoIndex];
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Tambahkan efek sederhana (opsional)
+    context.filter = 'sepia(100%)';
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    photoIndex++; // Pindah ke canvas berikutnya
+});
+
+// Reset foto (opsional)
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Reset Foto';
+    resetButton.id = 'reset'; // Tambahkan ID untuk styling
+    buttonContainer.appendChild(resetButton);
+
+    resetButton.addEventListener('click', () => {
+    photoCanvases.forEach(canvas => {
+        const context = canvas.getContext('2d');
+        context.clearRect(0, 0, canvas.width, canvas.height); // Hapus foto
+    });
+    photoIndex = 0; // Reset indeks
+});
+    </script>
+</body>
+</html>
